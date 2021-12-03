@@ -1,0 +1,31 @@
+import datetime as dt
+
+from airflow import DAG
+from airflow.operators.bash_operator import BashOperator
+from airflow.operators.python_operator import PythonOperator
+from airflow.providers.mongo.hooks.mongo import MongoHook
+
+# modules importing 
+from modules.scraper import data_scraper
+from modules.config import *
+
+import front_end
+
+
+default_args = {
+    'owner': 'Samreen',
+    'start_date': dt.datetime(2021, 12, 1),
+    'retries': 1,
+    'retry_delay': dt.timedelta(minutes=5),
+}
+
+dag = DAG('Srap_and_dump',
+         default_args=default_args,
+         schedule_interval='00 02 * * *',
+         )
+
+CFPB_DAG = PythonOperator(task_id='CFPB_DAG_ID',
+                            python_callable=front_end,
+                            dag=dag)
+
+CFPB_DAG
